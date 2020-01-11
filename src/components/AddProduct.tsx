@@ -1,8 +1,8 @@
 import React from "react";
 import { makeStyles, MuiThemeProvider } from "@material-ui/core/styles";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import TextField from "@material-ui/core/TextField";
-import { FormHelperText } from "@material-ui/core";
 import "react-dropzone-uploader/dist/styles.css";
 import Dropzone from "react-dropzone-uploader";
 import Button from "@material-ui/core/Button";
@@ -69,56 +69,67 @@ export const AddProduct: React.FC<AddProps> = ({ tab }) => {
           thumbnail
             .put(values.thumbnailFile)
             .then(snapshot => {
-              if (values.imageFile !== null) {
-                var image = storageRef.child(
-                  `${tab.value}/${values.productTitle}/image`
-                );
-                image
-                  .put(values.imageFile)
-                  .then(snapshot => {
-                    if (values.pdf !== null) {
-                      var pdf = storageRef.child(
-                        `${tab.value}/${values.productTitle}/pdf`
-                      );
-                      pdf
-                        .put(values.pdf)
-                        .then(snapshot => {
-                          // add to firestore after checking that all three blob files are uploaded to storage
-                          firebase
-                            .firestore()
-                            .collection("ShamLub")
-                            .doc(values.productTitle)
-                            .set(
-                              Object.assign(
-                                {},
-                                {
-                                  productTitle: values.productTitle,
-                                  desription: values.desription,
-                                  thumbnailFile: thumbnail.fullPath,
-                                  imageFile: image.fullPath,
-                                  pdf: pdf.fullPath
-                                }
-                              )
-                            )
-                            .then(() => {
-                              setSubmitting(false);
-                              console.log("Document successfully written!");
+              thumbnail.getDownloadURL().then(thumbnailURL => {
+                if (values.imageFile !== null) {
+                  var image = storageRef.child(
+                    `${tab.value}/${values.productTitle}/image`
+                  );
+                  image
+                    .put(values.imageFile)
+                    .then(snapshot => {
+                      image.getDownloadURL().then(imageURL => {
+                        if (values.pdf !== null) {
+                          var pdf = storageRef.child(
+                            `${tab.value}/${values.productTitle}/pdf`
+                          );
+                          pdf
+                            .put(values.pdf)
+                            .then(snapshot => {
+                              pdf.getDownloadURL().then(pdfURL => {
+                                // add to firestore after checking that all three blob files are uploaded to storage
+                                firebase
+                                  .firestore()
+                                  .collection(tab.value)
+                                  .doc(values.productTitle)
+                                  .set(
+                                    Object.assign(
+                                      {},
+                                      {
+                                        productTitle: values.productTitle,
+                                        desription: values.desription,
+                                        thumbnailFile: thumbnailURL,
+                                        imageFile: imageURL,
+                                        pdf: pdfURL
+                                      }
+                                    )
+                                  )
+                                  .then(() => {
+                                    setSubmitting(false);
+                                    console.log(
+                                      "Document successfully written!"
+                                    );
+                                  })
+                                  .catch(error => {
+                                    console.error(
+                                      "Error writing document: ",
+                                      error
+                                    );
+                                  });
+                              });
                             })
-                            .catch(error => {
-                              console.error("Error writing document: ", error);
+                            .catch(err => {
+                              console.log("err", err);
+                              setFieldError("pdf", "try again");
                             });
-                        })
-                        .catch(err => {
-                          console.log("err", err);
-                          setFieldError("pdf", "try again");
-                        });
-                    }
-                  })
-                  .catch(err => {
-                    console.log("err", err);
-                    setFieldError("imageFile", "try again");
-                  });
-              }
+                        }
+                      });
+                    })
+                    .catch(err => {
+                      console.log("err", err);
+                      setFieldError("imageFile", "try again");
+                    });
+                }
+              });
             })
             .catch(err => {
               console.log("err", err);

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { makeStyles } from "@material-ui/core/styles";
+import { ListProducts } from "../components/ListProducts";
 import { AddProduct } from "../components/AddProduct";
 import { Header } from "../components/Header";
 import { Nav } from "../components/Nav";
@@ -44,6 +45,7 @@ export const Dashboard: React.FC = () => {
       />
       <main className={classes.content}>
         <div className={classes.toolbar} />
+        <ListProducts tab={tab} />
         <AddProduct tab={tab} />
       </main>
     </div>
