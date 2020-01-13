@@ -10,7 +10,6 @@ import TableRow from "@material-ui/core/TableRow";
 import Table from "@material-ui/core/Table";
 import Paper from "@material-ui/core/Paper";
 import Delete from "@material-ui/icons/Delete";
-
 import firebase from "firebase";
 
 const useStyles = makeStyles(theme => ({
@@ -42,41 +41,29 @@ interface Row {
 export const ListProducts: React.FC<ListProductsProps> = ({ tab }) => {
   const classes = useStyles();
 
-  const [data, setData] = useState<null | any>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [data, setData] = useState();
+  const [isError, setIsError] = useState();
 
   useEffect(() => {
-    const fetchData = () => {
-      setIsLoading(true);
-      firebase
-        .firestore()
-        .collection(tab.value)
-        .get()
-        .then(querySnapshot => {
-          let documents = querySnapshot.docs.map(doc => {
-            return doc.data();
-          });
-          return documents;
-        })
-        .then(docs => {
-          setIsLoading(false);
-          setData(docs);
-        })
-        .catch(err => {
-          console.log("error in listing products", err);
-          setIsError(true);
-          setIsLoading(false);
-        });
-    };
-    fetchData();
+    listenForNewProduct();
   }, [tab.key]);
+
+  const listenForNewProduct = () => {
+    firebase
+      .firestore()
+      .collection(tab.value)
+      .onSnapshot(
+        snapshot => {
+          const products: any[] = [];
+          snapshot.forEach(doc => products.push(doc.data()));
+          setData(products);
+        },
+        error => setIsError(error)
+      );
+  };
 
   if (isError) {
     return <FormHelperText error>{isError}</FormHelperText>;
-  }
-  if (isLoading) {
-    return <CircularProgress />;
   }
 
   return (
