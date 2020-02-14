@@ -45,7 +45,7 @@ export const Dashboard: React.FC = () => {
       />
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {/* <ListProducts tab={tab} /> */}
+        <ListProducts tab={tab} />
         <AddProduct tab={tab} />
       </main>
     </div>
