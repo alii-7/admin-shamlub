@@ -9,7 +9,8 @@ import TableRow from "@material-ui/core/TableRow";
 import Table from "@material-ui/core/Table";
 import Paper from "@material-ui/core/Paper";
 import Delete from "@material-ui/icons/Delete";
-import firebase from "firebase";
+import { firestore } from "firebase";
+import { storage } from "firebase";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -46,8 +47,7 @@ export const ListProducts: React.FC<ListProductsProps> = ({ tab }) => {
   const { value } = tab;
   useEffect(() => {
     const listenForNewProduct = () => {
-      firebase
-        .firestore()
+      firestore()
         .collection(value)
         .onSnapshot(
           snapshot => {
@@ -64,7 +64,7 @@ export const ListProducts: React.FC<ListProductsProps> = ({ tab }) => {
     listenForNewProduct();
   }, [value]);
 
-  const storageRef = firebase.storage().ref();
+  const storageRef = storage().ref();
   const fileArray = ["image", "pdf", "thumbnail"];
   const deleteStorage = (documnetID: string) => {
     for (let i = 0; i < 3; i++) {
@@ -83,8 +83,7 @@ export const ListProducts: React.FC<ListProductsProps> = ({ tab }) => {
   };
 
   const deleteFirestore = (documnetID: string) => {
-    firebase
-      .firestore()
+    firestore()
       .collection(value)
       .doc(documnetID)
       .delete()

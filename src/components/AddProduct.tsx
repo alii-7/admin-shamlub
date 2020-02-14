@@ -9,7 +9,8 @@ import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import MUIRichTextEditor from "mui-rte";
 import { defaultTheme } from "../theme";
-import firebase from "firebase";
+import { firestore } from "firebase";
+import { storage } from "firebase";
 import { Formik } from "formik";
 import * as yup from "yup";
 
@@ -60,7 +61,7 @@ export const AddProduct: React.FC<AddProps> = ({ tab }) => {
           values.thumbnailFile !== null &&
           values.pdf !== null
         ) {
-          var storageRef = firebase.storage().ref();
+          var storageRef = storage().ref();
           var thumbnail = storageRef.child(
             `${tab.value}/${values.productTitle}/thumbnail`
           );
@@ -85,8 +86,8 @@ export const AddProduct: React.FC<AddProps> = ({ tab }) => {
                             .then(snapshot => {
                               pdf.getDownloadURL().then(pdfURL => {
                                 // add to firestore after checking that all three blob files are uploaded to storage
-                                firebase
-                                  .firestore()
+
+                                firestore()
                                   .collection(tab.value)
                                   .doc(values.productTitle)
                                   .set(

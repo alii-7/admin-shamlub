@@ -12,7 +12,7 @@ import Drawer from "@material-ui/core/Drawer";
 import Hidden from "@material-ui/core/Hidden";
 import List from "@material-ui/core/List";
 import { useHistory } from "react-router-dom";
-import firebase from "firebase";
+import { auth } from "firebase";
 
 const DRAWER_WIDTH = 240;
 
@@ -49,8 +49,7 @@ export const Nav: React.FC<NavProps> = ({
   let history = useHistory();
 
   const signOut = () => {
-    firebase
-      .auth()
+    auth()
       .signOut()
       .then(() => {
         // Sign-out successful.

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Route, Link } from "react-router-dom";
-import firebase from "firebase";
+import { auth } from "firebase";
 
 export const PrivateRoute = ({
   component: Component,
@@ -13,7 +13,7 @@ export const PrivateRoute = ({
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
-    const unsubscribeFromAuth = firebase.auth().onAuthStateChanged(user => {
+    const unsubscribeFromAuth = auth().onAuthStateChanged(user => {
       if (user) {
         // User is signed in.
         setIsAuthenticated(true);

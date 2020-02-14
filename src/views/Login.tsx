@@ -6,7 +6,7 @@ import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
-import firebase from "firebase";
+import { auth } from "firebase";
 
 export const Login: React.FC = () => {
   let history = useHistory();
@@ -16,8 +16,7 @@ export const Login: React.FC = () => {
 
   const login = (e: any) => {
     e.preventDefault();
-    firebase
-      .auth()
+    auth()
       .signInWithEmailAndPassword(email, password)
       .then((user: any) => {
         setError(null);
