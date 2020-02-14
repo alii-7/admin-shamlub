@@ -21,9 +21,7 @@ const useStyles = makeStyles(theme => ({
 
 let schema = yup.object().shape({
   productTitle: yup.string().required(),
-  desription: yup.object().shape({
-    blocks: yup.array().required()
-  }),
+  desription: yup.object().required(),
   thumbnail: yup.object().nullable(),
   image: yup.object().nullable(),
   pdf: yup.object().nullable()
@@ -31,7 +29,7 @@ let schema = yup.object().shape({
 
 interface FormState {
   productTitle: string;
-  desription: object;
+  desription: any;
   thumbnailFile: Blob | null;
   imageFile: Blob | null;
   pdf: Blob | null;
@@ -39,7 +37,7 @@ interface FormState {
 
 const initialValues: FormState = {
   productTitle: "",
-  desription: {},
+  desription: null,
   thumbnailFile: null,
   imageFile: null,
   pdf: null
@@ -56,7 +54,7 @@ export const AddProduct: React.FC<AddProps> = ({ tab }) => {
     <Formik
       initialValues={initialValues}
       validationSchema={schema}
-      onSubmit={(values, { setSubmitting, setFieldError }) => {
+      onSubmit={(values, { setSubmitting, setFieldError, resetForm }) => {
         if (
           values.imageFile !== null &&
           values.thumbnailFile !== null &&
@@ -272,6 +270,19 @@ export const AddProduct: React.FC<AddProps> = ({ tab }) => {
                 )}
               </Grid>
             </Grid>
+            {errors.thumbnailFile && (
+              <FormHelperText error>{errors.thumbnailFile}</FormHelperText>
+            )}
+            {errors.imageFile && (
+              <FormHelperText error>{errors.imageFile}</FormHelperText>
+            )}
+            {errors.pdf && <FormHelperText error>{errors.pdf}</FormHelperText>}
+            {errors.productTitle && (
+              <FormHelperText error>{errors.productTitle}</FormHelperText>
+            )}
+            {errors.desription && (
+              <FormHelperText error>{errors.desription}</FormHelperText>
+            )}
             {console.log("errors", errors)}
           </form>
         );

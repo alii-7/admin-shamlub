@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import IconButton from "@material-ui/core/IconButton";
@@ -44,22 +43,62 @@ export const ListProducts: React.FC<ListProductsProps> = ({ tab }) => {
   const [data, setData] = useState();
   const [isError, setIsError] = useState();
 
+  const { value } = tab;
   useEffect(() => {
-    listenForNewProduct();
-  }, [tab.key]);
+    const listenForNewProduct = () => {
+      firebase
+        .firestore()
+        .collection(value)
+        .onSnapshot(
+          snapshot => {
+            const products: any[] = [];
+            snapshot.forEach(doc => {
+              products.push(doc.data());
+            });
+            setData(products);
+          },
+          error => setIsError(error)
+        );
+    };
 
-  const listenForNewProduct = () => {
+    listenForNewProduct();
+  }, [value]);
+
+  const storageRef = firebase.storage().ref();
+  const fileArray = ["image", "pdf", "thumbnail"];
+  const deleteStorage = (documnetID: string) => {
+    for (let i = 0; i < 3; i++) {
+      const fileRef = storageRef.child(
+        `${value}/${documnetID}/${fileArray[i]}`
+      );
+      fileRef
+        .delete()
+        .then(() => {
+          console.log(`deleted ${fileArray[i]}`);
+        })
+        .catch(error => {
+          console.log("err: ", error);
+        });
+    }
+  };
+
+  const deleteFirestore = (documnetID: string) => {
     firebase
       .firestore()
-      .collection(tab.value)
-      .onSnapshot(
-        snapshot => {
-          const products: any[] = [];
-          snapshot.forEach(doc => products.push(doc.data()));
-          setData(products);
-        },
-        error => setIsError(error)
-      );
+      .collection(value)
+      .doc(documnetID)
+      .delete()
+      .then(() => {
+        console.log("Document successfully deleted from firestore");
+      })
+      .catch(error => {
+        console.error("err: ", error);
+      });
+  };
+
+  const handleDelete = (documnetID: string) => () => {
+    deleteStorage(documnetID);
+    deleteFirestore(documnetID);
   };
 
   if (isError) {
@@ -114,7 +153,7 @@ export const ListProducts: React.FC<ListProductsProps> = ({ tab }) => {
                   </a>
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton>
+                  <IconButton onClick={handleDelete(row.productTitle)}>
                     <Delete />
                   </IconButton>
                 </TableCell>
