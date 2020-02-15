@@ -46,22 +46,22 @@ export const ListProducts: React.FC<ListProductsProps> = ({ tab }) => {
 
   const { value } = tab;
   useEffect(() => {
-    const listenForNewProduct = () => {
-      firestore()
-        .collection(value)
-        .onSnapshot(
-          snapshot => {
-            const products: any[] = [];
-            snapshot.forEach(doc => {
-              products.push(doc.data());
-            });
-            setData(products);
-          },
-          error => setIsError(error)
-        );
-    };
+    const unsubscribe = firestore()
+      .collection(value)
+      .onSnapshot(
+        snapshot => {
+          const products: any[] = [];
+          snapshot.forEach(doc => {
+            products.push(doc.data());
+          });
+          setData(products);
+        },
+        error => setIsError(error)
+      );
 
-    listenForNewProduct();
+    return () => {
+      unsubscribe();
+    };
   }, [value]);
 
   const storageRef = storage().ref();
