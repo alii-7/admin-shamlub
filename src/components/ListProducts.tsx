@@ -101,7 +101,7 @@ export const ListProducts: React.FC<ListProductsProps> = ({ tab }) => {
   };
 
   if (isError) {
-    return <FormHelperText error>{isError}</FormHelperText>;
+    console.log("err: ", isError);
   }
 
   return (
